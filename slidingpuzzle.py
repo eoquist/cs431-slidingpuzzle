@@ -41,7 +41,7 @@ FRAME_TIME = 10
 try:
     import tkinter as tk
     do_graphics = True
-    
+
     class Board(tk.Frame):
         def __init__(self, window, layout, solution):
             tk.Frame.__init__(self, window)
@@ -50,33 +50,38 @@ try:
             self.solution = solution
             self.step = 0
             self.layout = layout
-            
-            self.canvas = tk.Canvas(width = len(layout[0]) * TILE_SIZE,
-                                    height = len(layout) * TILE_SIZE,
-                                    background = BACKGROUND_COLOR)
+
+            self.canvas = tk.Canvas(width=len(layout[0]) * TILE_SIZE,
+                                    height=len(layout) * TILE_SIZE,
+                                    background=BACKGROUND_COLOR)
             self.canvas.pack()
 
             # define the Tile objects (and find the gap)
             self.tiles = [None] * (len(layout)*len(layout[0]))
             for r in range(len(layout)):
                 for c in range(len(layout[r])):
-                    if layout[r][c] == 0: self.gap = (r,c)
-                    else: self.tiles[layout[r][c]] = Tile(self.canvas, layout[r][c], (r, c))
+                    if layout[r][c] == 0:
+                        self.gap = (r, c)
+                    else:
+                        self.tiles[layout[r][c]] = Tile(
+                            self.canvas, layout[r][c], (r, c))
 
             if solution == None:
-                self.canvas.create_text(len(layout[0]) * TILE_SIZE /2, len(layout) * TILE_SIZE /3, text=str("Unsolvable!"), font=ERROR_FONT, fill=ERROR_COLOR)
+                self.canvas.create_text(len(layout[0]) * TILE_SIZE / 2, len(
+                    layout) * TILE_SIZE / 3, text=str("Unsolvable!"), font=ERROR_FONT, fill=ERROR_COLOR)
 
-                    
         def start_animation_logic(self):
             """
             Start the logic up, to handle animation.
             """
-            if self.solution != None: self.after(0, self._animate_frame)
+            if self.solution != None:
+                self.after(0, self._animate_frame)
 
         # do a single frame
         def _animate_frame(self):
-            if self.step >= len(self.solution): return #stop animation if we've reached the end
-            
+            if self.step >= len(self.solution):
+                return  # stop animation if we've reached the end
+
             delta = float(FRAME_TIME / MOVE_TIME)
 
             # if we have an int, it's time to set up the next step
@@ -105,13 +110,18 @@ try:
                 self.tiles[self.moving_tile].jump_to(self.gap)
 
                 # where's the new gap?
-                if self.current_move == 'L': new_gap = (self.gap[0], self.gap[1]+1)
-                elif self.current_move == 'R': new_gap = (self.gap[0], self.gap[1]-1)
-                elif self.current_move == 'U': new_gap = (self.gap[0]+1, self.gap[1])
-                elif self.current_move == 'D': new_gap = (self.gap[0]-1, self.gap[1])
+                if self.current_move == 'L':
+                    new_gap = (self.gap[0], self.gap[1]+1)
+                elif self.current_move == 'R':
+                    new_gap = (self.gap[0], self.gap[1]-1)
+                elif self.current_move == 'U':
+                    new_gap = (self.gap[0]+1, self.gap[1])
+                elif self.current_move == 'D':
+                    new_gap = (self.gap[0]-1, self.gap[1])
 
                 # adjust the layout
-                self.layout[self.gap[0]][self.gap[1]] = self.layout[new_gap[0]][new_gap[1]]
+                self.layout[self.gap[0]][self.gap[1]
+                                         ] = self.layout[new_gap[0]][new_gap[1]]
                 self.layout[new_gap[0]][new_gap[1]] = 0
                 self.gap = new_gap
 
@@ -128,14 +138,17 @@ try:
         """
         Graphical tile within the puzzle.
         """
+
         def __init__(self, canvas, value, coords):
             """
             Constructor, setting everything up.
             """
             self.value = value
-            self.rect = canvas.create_rectangle(1, 1, TILE_SIZE+1, TILE_SIZE+1, fill=TILE_COLOR, width=2)
-            self.text = canvas.create_text(TILE_SIZE/2, TILE_SIZE/2, text=str(value), font=TILE_FONT, fill=NUMBER_COLOR)
-            self.coords = (0,0)
+            self.rect = canvas.create_rectangle(
+                1, 1, TILE_SIZE+1, TILE_SIZE+1, fill=TILE_COLOR, width=2)
+            self.text = canvas.create_text(
+                TILE_SIZE/2, TILE_SIZE/2, text=str(value), font=TILE_FONT, fill=NUMBER_COLOR)
+            self.coords = (0, 0)
             self.canvas = canvas
             self.jump_to(coords)
 
@@ -164,13 +177,18 @@ except:
     do_graphics = False
 
 # given some token from the file, cast it as an int or return 0 if it's a ./_/x
+
+
 def _parse_token(token):
-    if token == '.' or token == "_" or token == "x": return 0
-    else: return int(token)
-    
+    if token == '.' or token == "_" or token == "x":
+        return 0
+    else:
+        return int(token)
+
 ################################################################################
 # MAIN CODE--INITIAL CHECKS, IMPORTING OF MODULES
 ################################################################################
+
 
 # check that there is a valid solve() function
 try:
@@ -182,15 +200,18 @@ except:
 # see if the user wants to squelch the graphics
 args = sys.argv[1:]
 while "--nographics" in args or "-n" in args:
-    if "--nographics" in args: index = args.index("--nographics")
-    else: index = args.index("-n")
+    if "--nographics" in args:
+        index = args.index("--nographics")
+    else:
+        index = args.index("-n")
 
     del args[index]
     do_graphics = False
 
 # check that we have a valid input from the user
 if len(args) == 0:
-    print("Usage: python3 " +sys.argv[0]+ " (-n/--nographics) <puz file>", file=sys.stderr)
+    print("Usage: python3 " +
+          sys.argv[0] + " (-n/--nographics) <puz file>", file=sys.stderr)
     print("       The -n or --nographics flags will turn off the graphical display.", file=sys.stderr)
     sys.exit(1)
 
@@ -205,10 +226,12 @@ with open(args[0]) as f:
 # solve the puzzle using the student's solve() inside of solver.py
 solution = solve(puzzle_data)
 print("Solution: ", end="")
-if solution == None: print("Impossible!")
+if solution == None:
+    print("Impossible!")
 else:
-    for s in solution: print(s, end="")
-    print(" (" +str(len(solution)) + ")")
+    for s in solution:
+        print(s, end="")
+    print(" (" + str(len(solution)) + ")")
 
 # actual graphical stuff
 if do_graphics:
